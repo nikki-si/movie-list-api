@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 Movie List API</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f0f8ff;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    #result {
+      background: #e8f4fc;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 Добавить фильм</h1>
+
+  <form id="movieForm">
+    <input type="text" id="title" placeholder="Название фильма" required />
+    <input type="number" id="year" placeholder="Год выпуска (напр. 2020)" min="1888" max="2030" required />
+    <select id="genre" required>
+      <option value="">Выберите жанр</option>
+      <option value="sci-fi">Фантастика</option>
+      <option value="drama">Драма</option>
+      <option value="comedy">Комедия</option>
+      <option value="thriller">Триллер</option>
+      <option value="action">Боевик</option>
+    </select>
+    <button type="submit">➕ Добавить фильм</button>
+  </form>
+
+  <div id="result"></div>
+
+  <p style="text-align: center; margin-top: 30px;">
+    <a href="/movies" target="_blank">👀 Посмотреть все фильмы (в новой вкладке)</a>
+  </p>
+
+  <script>
+    document.getElementById('movieForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      const year = parseInt(document.getElementById('year').value);
+      const genre = document.getElementById('genre').value;
+
+      const resultDiv = document.getElementById('result');
+
+      try {
+        const response = await fetch('/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, year, genre })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resultDiv.style.color = 'green';
+          resultDiv.textContent = `✅ Фильм "${data.title}" успешно добавлен! ID: ${data.id}`;
+          document.getElementById('movieForm').reset();
+        } else {
+          resultDiv.style.color = 'red';
+          resultDiv.textContent = `❌ Ошибка: ${data.message || 'Не удалось добавить фильм'}`;
+        }
+      } catch (err) {
+        resultDiv.style.color = 'red';
+        resultDiv.textContent = `❌ Ошибка сети: ${err.message}`;
+      }
+
+      resultDiv.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
